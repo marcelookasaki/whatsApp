@@ -2,12 +2,12 @@ package com.myo.whatsapp
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.myo.whatsapp.databinding.ActivityMainBinding
+import com.myo.whatsapp.databinding.ActivityLoginBinding
 
-class MainActivity : AppCompatActivity() {
+class LoginActivity : AppCompatActivity() {
 
     private val binding by lazy {
-        ActivityMainBinding.inflate( layoutInflater )
+        ActivityLoginBinding.inflate( layoutInflater )
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

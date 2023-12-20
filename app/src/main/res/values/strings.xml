@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">WhatsApp</string>
+    <string name="logoWhatsApp">Logo WhatsApp</string>
+    <string name="cadastreSe">Cadastre-se!</string>
 </resources>

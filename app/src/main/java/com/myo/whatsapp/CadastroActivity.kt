@@ -2,13 +2,14 @@ package com.myo.whatsapp
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.myo.whatsapp.databinding.ActivityMainBinding
+import com.myo.whatsapp.databinding.ActivityCadastroBinding
 
-class MainActivity : AppCompatActivity() {
+class CadastroActivity : AppCompatActivity() {
 
     private val binding by lazy {
-        ActivityMainBinding.inflate( layoutInflater )
+        ActivityCadastroBinding.inflate( layoutInflater )
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView( binding.root )
