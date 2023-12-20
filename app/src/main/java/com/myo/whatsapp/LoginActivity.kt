@@ -1,5 +1,6 @@
 package com.myo.whatsapp
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.myo.whatsapp.databinding.ActivityLoginBinding
@@ -12,5 +13,17 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView( binding.root )
+
+        inicializarEventosClique()
+    }
+
+    private fun inicializarEventosClique() {
+
+        binding.tvCadastreSe.setOnClickListener {
+
+            startActivity(
+                Intent( this, CadastroActivity::class.java )
+            )
+        }
     }
 }
