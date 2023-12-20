@@ -34,7 +34,8 @@
             android:id="@+id/tietEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Digite seu e-mail" />
+            android:hint="Digite seu e-mail"
+            android:inputType="text|textEmailAddress" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -54,7 +55,8 @@
             android:id="@+id/tietSenha"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Digite sua senha" />
+            android:hint="Digite sua senha"
+            android:inputType="text|textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
