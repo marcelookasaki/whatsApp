@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.myo.whatsapp.databinding.ActivityPerfilBinding
 import com.myo.whatsapp.utils.exibirMensagem
+import com.squareup.picasso.Picasso
 
 class PerfilActivity : AppCompatActivity() {
 
@@ -33,6 +34,7 @@ class PerfilActivity : AppCompatActivity() {
 
     private var temPermissaoCamera = false
     private var temPermissaoGaleria = false
+    private var idUsuario: String? = null
 
     private val gerenciadorGaleria = registerForActivityResult(
         ActivityResultContracts.GetContent()
@@ -59,9 +61,55 @@ class PerfilActivity : AppCompatActivity() {
         inicializarEventosClique()
     }
 
+    override fun onStart() {
+        super.onStart()
+        recuperarDadosIniciaisUsuarios()
+    }
+
+    private fun recuperarDadosIniciaisUsuarios() {
+
+        recuperarIdUsuario()
+
+        if ( idUsuario != null ) {
+
+            firestore
+                .collection( "usuarios" )
+                .document( idUsuario!! )
+                .get()
+                .addOnSuccessListener { documentSnapshot ->
+
+                    val dadosUsuarios = documentSnapshot.data
+
+                    if ( dadosUsuarios != null ){
+
+                        val nome = dadosUsuarios[ "nome" ] as String
+                        val foto = dadosUsuarios[ "foto" ] as String
+
+                        binding.tietPerfilNome.setText( nome )
+
+                        if ( foto.isNotEmpty() ) {
+
+                            Picasso
+                                .get()
+                                .load( foto )
+                                .into( binding.ivPerfil )
+
+                        }
+
+                    }
+
+                }
+
+
+        }
+
+    }
+
+
+
     private fun uploadImagemStorage(uri: Uri) {
 
-        val idUsuario = firebaseAuth.currentUser?.uid
+        recuperarIdUsuario()
 
         if ( idUsuario != null ) {
 
@@ -69,7 +117,7 @@ class PerfilActivity : AppCompatActivity() {
             storage
                 .getReference( "fotos" )
                 .child( "usuarios" )
-                .child( idUsuario )
+                .child( idUsuario!!)
                 .child( "perfil.jpg" )
                 .putFile( uri )
                 .addOnSuccessListener { task ->
@@ -85,7 +133,7 @@ class PerfilActivity : AppCompatActivity() {
                                 "foto" to url.toString()
                             )
 
-                            atualizarDadosPerfil( idUsuario, dados )
+                            atualizarDadosPerfil(idUsuario!!, dados )
 
                         }
 
@@ -94,6 +142,12 @@ class PerfilActivity : AppCompatActivity() {
                     exibirMensagem( "Erro ao fazer o upload da imagem!" )
                 }
         }
+    }
+
+    private fun recuperarIdUsuario() {
+
+        idUsuario = firebaseAuth.currentUser?.uid
+
     }
 
     private fun atualizarDadosPerfil(idUsuario: String, dados: Map<String, String>) {
@@ -128,7 +182,7 @@ class PerfilActivity : AppCompatActivity() {
 
             if ( nomeUsuario.isNotEmpty() ) {
 
-                val idUsuario = firebaseAuth.currentUser?.uid
+                recuperarIdUsuario()
 
                 if ( idUsuario != null ) {
 
@@ -136,7 +190,7 @@ class PerfilActivity : AppCompatActivity() {
                         "nome" to nomeUsuario
                     )
 
-                    atualizarDadosPerfil( idUsuario, dados )
+                    atualizarDadosPerfil(idUsuario!!, dados )
 
                 }else {
                     exibirMensagem( "Id do usuário inválido!" )
