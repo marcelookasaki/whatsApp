@@ -8,6 +8,7 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.myo.whatsapp.databinding.ActivityPerfilBinding
 import com.myo.whatsapp.utils.exibirMensagem
@@ -24,6 +25,10 @@ class PerfilActivity : AppCompatActivity() {
 
     private val storage by lazy {
         FirebaseStorage.getInstance()
+    }
+
+    private val firestore by lazy {
+        FirebaseFirestore.getInstance()
     }
 
     private var temPermissaoCamera = false
@@ -70,11 +75,35 @@ class PerfilActivity : AppCompatActivity() {
                 .addOnSuccessListener { task ->
 
                     exibirMensagem( "Sucesso ao fazer o upload da imagem!" )
+
+                    task.metadata
+                        ?.reference
+                        ?.downloadUrl
+                        ?.addOnSuccessListener { url ->
+
+                            val dados = mapOf( 
+                                "foto" to url.toString()
+                            )
+
+                            atualizarDadosPerfil( idUsuario, dados )
+
+                        }
+
                 }
                 .addOnFailureListener {
                     exibirMensagem( "Erro ao fazer o upload da imagem!" )
                 }
         }
+    }
+
+    private fun atualizarDadosPerfil(idUsuario: String, dados: Map<String, String>) {
+
+        firestore
+            .collection( "usuarios" )
+            .document( idUsuario )
+            .update( dados )
+            .addOnSuccessListener { exibirMensagem( "Sucesso ao atulizar perfil!" ) }
+            .addOnFailureListener { exibirMensagem( "Erro ao atualizar perfil!" ) }
     }
 
     private fun inicializarEventosClique() {
@@ -90,6 +119,34 @@ class PerfilActivity : AppCompatActivity() {
                 exibirMensagem( "Não tem permissão para acessar galeria!" )
 
                 solicitarPermissoes()
+            }
+        }
+
+        binding.btnAtualizar.setOnClickListener {
+
+            val nomeUsuario = binding.tietPerfilNome.text.toString()
+
+            if ( nomeUsuario.isNotEmpty() ) {
+
+                val idUsuario = firebaseAuth.currentUser?.uid
+
+                if ( idUsuario != null ) {
+
+                    val dados = mapOf(
+                        "nome" to nomeUsuario
+                    )
+
+                    atualizarDadosPerfil( idUsuario, dados )
+
+                }else {
+                    exibirMensagem( "Id do usuário inválido!" )
+                }
+
+
+            }else {
+
+                exibirMensagem( "Preencha o nome para atualizar o perfil!" )
+
             }
 
         }
