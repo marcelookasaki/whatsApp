@@ -6,12 +6,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.FirebaseStorage
 import com.myo.whatsapp.R
+import com.myo.whatsapp.adapters.ContatosAdapter
 import com.myo.whatsapp.databinding.ActivityPerfilBinding
 import com.myo.whatsapp.databinding.FragmentContatosBinding
 import com.myo.whatsapp.model.Usuario
@@ -21,24 +24,33 @@ class ContatosFragment : Fragment() {
 
     private lateinit var binding: FragmentContatosBinding
     private lateinit var eventoSnapshot: ListenerRegistration
+    private lateinit var contatosAdapter: ContatosAdapter
+
 
     private val firebaseAuth by lazy {
         FirebaseAuth.getInstance()
     }
 
-    /*private val storage by lazy {
-        FirebaseStorage.getInstance()
-    }*/
-
     private val firestore by lazy {
         FirebaseFirestore.getInstance()
     }
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentContatosBinding.inflate( inflater, container, false )
+
+        contatosAdapter = ContatosAdapter()
+        binding.rvContatosFrag.adapter = contatosAdapter
+        binding.rvContatosFrag.layoutManager = LinearLayoutManager( context )
+        binding.rvContatosFrag.addItemDecoration(
+            DividerItemDecoration(
+                context, LinearLayoutManager.VERTICAL
+            )
+        )
 
         return binding.root
     }
@@ -55,6 +67,7 @@ class ContatosFragment : Fragment() {
             .collection( "usuarios" )
             .addSnapshotListener { querySnapshot, error ->
 
+                val idUsuario = firebaseAuth.currentUser?.uid
                 val listaContatos = mutableListOf<Usuario>()
                 val documentos = querySnapshot?.documents
 
@@ -62,12 +75,9 @@ class ContatosFragment : Fragment() {
 
                     val usuario = documentSnapshot.toObject( Usuario::class.java )
 
-                    if ( usuario != null ) {
+                    if ( usuario != null && idUsuario != null) {
 
-                        val idUsuario = firebaseAuth.currentUser?.uid
-
-                        if ( idUsuario != null ) {
-                            if ( idUsuario != usuario.id )
+                        if ( idUsuario != usuario.id ) {
 
                             listaContatos.add( usuario )
 
@@ -75,12 +85,11 @@ class ContatosFragment : Fragment() {
                         }
                     }
                 }
+                // Lista de contatos - atualizar recycler view
+                if ( listaContatos.isNotEmpty() ) {
+                    contatosAdapter.adicionarLista( listaContatos )
+                }
             }
-
-        // Lista de contatos - atualizar recycler view
-
-
-
     }
 
     override fun onDestroy() {
