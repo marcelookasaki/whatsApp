@@ -1,5 +1,9 @@
 package com.myo.whatsapp.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Usuario(
 
     var id: String = "",
@@ -7,4 +11,4 @@ data class Usuario(
     var email: String = "",
     var foto: String = ""
 
-)
+): Parcelable

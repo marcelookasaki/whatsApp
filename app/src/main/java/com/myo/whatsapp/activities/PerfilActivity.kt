@@ -1,4 +1,4 @@
-package com.myo.whatsapp
+package com.myo.whatsapp.activities
 
 import android.Manifest
 import android.content.pm.PackageManager
