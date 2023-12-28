@@ -8,6 +8,7 @@ import com.myo.whatsapp.databinding.ActivityCadastroBinding
 import com.myo.whatsapp.databinding.ActivityMensagensBinding
 import com.myo.whatsapp.model.Usuario
 import com.myo.whatsapp.utils.Constantes
+import com.squareup.picasso.Picasso
 
 class MensagensActivity : AppCompatActivity() {
 
@@ -22,6 +23,8 @@ class MensagensActivity : AppCompatActivity() {
         setContentView( binding.root )
 
         recuperarDadosUsuarioDestino()
+
+        inicializarToolbar()
 
     }
 
@@ -43,6 +46,28 @@ class MensagensActivity : AppCompatActivity() {
             }else if ( origem == Constantes.ORIGEM_CONVERSA ) {
                         // REcuperar os dados da conversa
             }
+        }
+    }
+
+    private fun inicializarToolbar() {
+
+        val toolbar = binding.mtbMensagens
+
+        setSupportActionBar( toolbar )
+
+        supportActionBar?.apply {
+            title = ""
+
+            if ( dadosDestinatario != null ) {
+
+                binding.tvMTBMensagens.text = dadosDestinatario!!.nome
+
+                Picasso.get()
+                    .load( dadosDestinatario!!.foto )
+                    .into( binding.ivMTBMensagens )
+
+            }
+            setDisplayHomeAsUpEnabled( true )
         }
     }
 }
