@@ -1,19 +1,28 @@
 package com.myo.whatsapp.activities
 
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.myo.whatsapp.R
-import com.myo.whatsapp.databinding.ActivityCadastroBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.myo.whatsapp.databinding.ActivityMensagensBinding
+import com.myo.whatsapp.model.Mensagem
 import com.myo.whatsapp.model.Usuario
 import com.myo.whatsapp.utils.Constantes
+import com.myo.whatsapp.utils.exibirMensagem
 import com.squareup.picasso.Picasso
 
 class MensagensActivity : AppCompatActivity() {
 
     private val binding by lazy {
         ActivityMensagensBinding.inflate( layoutInflater )
+    }
+
+    private val firebaseAuth by lazy {
+        FirebaseAuth.getInstance()
+    }
+
+    private val firestore by lazy {
+        FirebaseFirestore.getInstance()
     }
 
     private var dadosDestinatario : Usuario? = null
@@ -26,7 +35,66 @@ class MensagensActivity : AppCompatActivity() {
 
         inicializarToolbar()
 
+        inicializarEventosClique()
+
     }
+
+    private fun inicializarEventosClique() {
+
+        binding.fabEnviar.setOnClickListener {
+
+            val mensagem = binding.tietMensagens.text.toString()
+
+            salvarMensagem( mensagem )
+
+        }
+    }
+
+    private fun salvarMensagem( textoMensagem: String) {
+
+        if ( textoMensagem.isNotEmpty() ) {
+
+            val idUsuarioRemetente = firebaseAuth.currentUser?.uid
+            val idUsuarioDestinatario = dadosDestinatario?.id
+
+            if ( idUsuarioRemetente != null && idUsuarioDestinatario != null ) {
+
+                val mensagem = Mensagem(
+                    idUsuarioRemetente, textoMensagem
+                )
+                // Salvar para o remetente
+                salvarMensagemFirestore(
+                    idUsuarioRemetente, idUsuarioDestinatario, mensagem
+                )
+
+                // Salvar para o destinatario
+                salvarMensagemFirestore(
+                    idUsuarioDestinatario, idUsuarioRemetente, mensagem
+                )
+
+                binding.tietMensagens.setText( "" )
+            }
+        }
+    }
+
+    private fun salvarMensagemFirestore(
+        idUsuarioRemetente: String,
+        idUsuarioDestinatario: String,
+        mensagem: Mensagem
+    ) {
+
+        firestore
+            .collection( Constantes.MENSAGENS )
+            .document( idUsuarioRemetente )
+            .collection( idUsuarioDestinatario )
+            .add( mensagem )
+            .addOnFailureListener {
+
+                exibirMensagem( "Erro ao enviar mensagem!" )
+
+            }
+    }
+
 
     private fun  recuperarDadosUsuarioDestino() {
 
