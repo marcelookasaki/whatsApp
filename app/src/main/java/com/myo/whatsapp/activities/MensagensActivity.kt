@@ -2,8 +2,11 @@ package com.myo.whatsapp.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import com.myo.whatsapp.databinding.ActivityMensagensBinding
 import com.myo.whatsapp.model.Mensagem
 import com.myo.whatsapp.model.Usuario
@@ -26,16 +29,74 @@ class MensagensActivity : AppCompatActivity() {
     }
 
     private var dadosDestinatario : Usuario? = null
+    private lateinit var listenerRegistration: ListenerRegistration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView( binding.root )
 
-        recuperarDadosUsuarioDestino()
+        recuperarDadosUsuarioDestinatario()
 
         inicializarToolbar()
 
         inicializarEventosClique()
+
+        inicializarListeners()
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        listenerRegistration.remove()
+    }
+
+    private fun inicializarListeners() {
+
+        val idUsuarioRemetente = firebaseAuth.currentUser?.uid
+        val idUsuarioDestinatario = dadosDestinatario?.id
+
+        if ( idUsuarioRemetente != null && idUsuarioDestinatario != null ) {
+
+               listenerRegistration = firestore
+                .collection( Constantes.MENSAGENS )
+                .document( idUsuarioRemetente )
+                .collection( idUsuarioDestinatario )
+                .orderBy( "data", Query.Direction.ASCENDING )
+                .addSnapshotListener { querySnapshot, erro ->
+
+                    if ( erro != null ) {
+
+                        exibirMensagem( "Erro ao recuperar mensagens!" )
+
+                    }
+
+                    val listaMensagens = mutableListOf<Mensagem>()
+                    val documentos = querySnapshot?.documents
+
+                    documentos?.forEach { documentSnapshot ->
+
+                        val mensagem = documentSnapshot.toObject( Mensagem::class.java )
+
+                        if ( mensagem != null ) {
+
+                            listaMensagens.add( mensagem )
+
+                            Log.i( "exibicao_mensagens", mensagem.mensagem)
+
+                        }
+                    }
+
+                    // Lista
+                    if ( listaMensagens.isNotEmpty() ) {
+
+                        // Carregar os dados adapter
+
+                    }
+
+                }
+
+        }
 
     }
 
@@ -96,7 +157,7 @@ class MensagensActivity : AppCompatActivity() {
     }
 
 
-    private fun  recuperarDadosUsuarioDestino() {
+    private fun  recuperarDadosUsuarioDestinatario() {
 
         val extras = intent.extras
 
