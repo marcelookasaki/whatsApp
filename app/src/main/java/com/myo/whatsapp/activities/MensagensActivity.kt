@@ -3,10 +3,12 @@ package com.myo.whatsapp.activities
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
+import com.myo.whatsapp.adapters.ConversasAdapter
 import com.myo.whatsapp.databinding.ActivityMensagensBinding
 import com.myo.whatsapp.model.Mensagem
 import com.myo.whatsapp.model.Usuario
@@ -30,6 +32,7 @@ class MensagensActivity : AppCompatActivity() {
 
     private var dadosDestinatario : Usuario? = null
     private lateinit var listenerRegistration: ListenerRegistration
+    private lateinit var conversasAdapter: ConversasAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +44,19 @@ class MensagensActivity : AppCompatActivity() {
 
         inicializarEventosClique()
 
+        inicializarRecyclerView()
+
         inicializarListeners()
+
+    }
+
+    private fun inicializarRecyclerView() {
+
+        with( binding ) {
+            conversasAdapter = ConversasAdapter()
+            rvMensagens.adapter = conversasAdapter
+            rvMensagens.layoutManager = LinearLayoutManager( applicationContext )
+        }
 
     }
 
@@ -91,13 +106,11 @@ class MensagensActivity : AppCompatActivity() {
                     if ( listaMensagens.isNotEmpty() ) {
 
                         // Carregar os dados adapter
+                        conversasAdapter.adicionarLista( listaMensagens )
 
                     }
-
                 }
-
         }
-
     }
 
     private fun inicializarEventosClique() {
