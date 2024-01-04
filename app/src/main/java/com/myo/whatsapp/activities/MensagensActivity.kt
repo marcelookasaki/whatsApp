@@ -8,8 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.toObject
-import com.myo.whatsapp.adapters.ConversasAdapter
+import com.myo.whatsapp.adapters.MensagensAdapter
 import com.myo.whatsapp.databinding.ActivityMensagensBinding
 import com.myo.whatsapp.model.Conversa
 import com.myo.whatsapp.model.Mensagem
@@ -35,7 +34,7 @@ class MensagensActivity : AppCompatActivity() {
     private var dadosDestinatario : Usuario? = null
     private var dadosRemetente : Usuario? = null // Usuario logado
     private lateinit var listenerRegistration: ListenerRegistration
-    private lateinit var conversasAdapter: ConversasAdapter
+    private lateinit var conversasAdapter: MensagensAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +55,7 @@ class MensagensActivity : AppCompatActivity() {
     private fun inicializarRecyclerView() {
 
         with( binding ) {
-            conversasAdapter = ConversasAdapter()
+            conversasAdapter = MensagensAdapter()
             rvMensagens.adapter = conversasAdapter
             rvMensagens.layoutManager = LinearLayoutManager( applicationContext )
         }

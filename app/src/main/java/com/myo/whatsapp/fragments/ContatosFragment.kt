@@ -29,7 +29,6 @@ class ContatosFragment : Fragment() {
     private lateinit var eventoSnapshot: ListenerRegistration
     private lateinit var contatosAdapter: ContatosAdapter
 
-
     private val firebaseAuth by lazy {
         FirebaseAuth.getInstance()
     }
@@ -37,8 +36,6 @@ class ContatosFragment : Fragment() {
     private val firestore by lazy {
         FirebaseFirestore.getInstance()
     }
-
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

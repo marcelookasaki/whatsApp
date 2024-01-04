@@ -5,13 +5,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.google.firebase.auth.FirebaseAuth
-import com.myo.whatsapp.databinding.ItemContatosBinding
 import com.myo.whatsapp.databinding.ItemMensagensDestinatarioBinding
 import com.myo.whatsapp.databinding.ItemMensagensRemetenteBinding
 import com.myo.whatsapp.model.Mensagem
 import com.myo.whatsapp.utils.Constantes
 
-class ConversasAdapter : Adapter<ViewHolder>() {
+class MensagensAdapter : Adapter<ViewHolder>() {
 
     private var listaMensagens = emptyList<Mensagem>()
 
