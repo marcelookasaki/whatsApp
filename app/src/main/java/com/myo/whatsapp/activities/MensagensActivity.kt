@@ -8,8 +8,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.toObject
 import com.myo.whatsapp.adapters.ConversasAdapter
 import com.myo.whatsapp.databinding.ActivityMensagensBinding
+import com.myo.whatsapp.model.Conversa
 import com.myo.whatsapp.model.Mensagem
 import com.myo.whatsapp.model.Usuario
 import com.myo.whatsapp.utils.Constantes
@@ -31,6 +33,7 @@ class MensagensActivity : AppCompatActivity() {
     }
 
     private var dadosDestinatario : Usuario? = null
+    private var dadosRemetente : Usuario? = null // Usuario logado
     private lateinit var listenerRegistration: ListenerRegistration
     private lateinit var conversasAdapter: ConversasAdapter
 
@@ -38,7 +41,7 @@ class MensagensActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView( binding.root )
 
-        recuperarDadosUsuarioDestinatario()
+        recuperarDadosUsuarios()
 
         inicializarToolbar()
 
@@ -57,7 +60,6 @@ class MensagensActivity : AppCompatActivity() {
             rvMensagens.adapter = conversasAdapter
             rvMensagens.layoutManager = LinearLayoutManager( applicationContext )
         }
-
     }
 
     override fun onDestroy() {
@@ -141,14 +143,50 @@ class MensagensActivity : AppCompatActivity() {
                     idUsuarioRemetente, idUsuarioDestinatario, mensagem
                 )
 
+                // Salvar conversa remetente
+
+                val conversaRemetente = Conversa(
+                    idUsuarioRemetente, idUsuarioDestinatario,
+                    dadosDestinatario!!.foto, dadosDestinatario!!.nome,
+                    textoMensagem
+                )
+
+                salvarConversasFirestore( conversaRemetente )
+
+
+
                 // Salvar para o destinatario
                 salvarMensagemFirestore(
                     idUsuarioDestinatario, idUsuarioRemetente, mensagem
                 )
 
+                // Salvar conversa destinatario
+
+                val conversaDestinatario = Conversa(
+                    idUsuarioDestinatario, idUsuarioRemetente,
+                    dadosRemetente!!.foto, dadosRemetente!!.nome,
+                    textoMensagem
+                )
+
+                salvarConversasFirestore( conversaDestinatario )
+
                 binding.tietMensagens.setText( "" )
             }
         }
+    }
+
+    private fun salvarConversasFirestore(conversa: Conversa) {
+
+        firestore
+            .collection( Constantes.CONVERSAS )
+            .document( conversa.idUsuarioRemetente )
+            .collection( Constantes.ULTIMAS_CONVERSAS )
+            .document( conversa.idUsuarioDestinatario )
+            .set( conversa )
+            .addOnFailureListener {
+                exibirMensagem( "Erro ao salvar conversa!" )
+            }
+
     }
 
     private fun salvarMensagemFirestore(
@@ -170,8 +208,30 @@ class MensagensActivity : AppCompatActivity() {
     }
 
 
-    private fun  recuperarDadosUsuarioDestinatario() {
+    private fun  recuperarDadosUsuarios() {
 
+        // Recuperando dados remetente
+        val idUsuarioRemetente = firebaseAuth.currentUser?.uid
+
+        if ( idUsuarioRemetente != null ) {
+
+            firestore
+                .collection( Constantes.USUARIOS )
+                .document( idUsuarioRemetente )
+                .get()
+                .addOnSuccessListener { documentSnapshot ->
+
+                    val usuario = documentSnapshot.toObject( Usuario::class.java )
+
+                    if ( usuario != null ) {
+
+                        dadosRemetente = usuario
+
+                    }
+                }
+        }
+
+        // Recuperando dados destinatario
         val extras = intent.extras
 
         if ( extras != null ) {
