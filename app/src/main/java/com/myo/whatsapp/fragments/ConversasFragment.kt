@@ -49,7 +49,7 @@ class ConversasFragment : Fragment() {
 
              val intent = Intent( context, MensagensActivity::class.java )
              val usuario = Usuario(
-                 id = conversa.idUsuarioRemetente,
+                 id = conversa.idUsuarioDestinatario,
                  nome = conversa.nome,
                  foto = conversa.foto
              )
