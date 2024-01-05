@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import com.myo.whatsapp.R
 import com.myo.whatsapp.activities.MensagensActivity
@@ -91,6 +92,7 @@ class ConversasFragment : Fragment() {
                 .collection( Constantes.CONVERSAS )
                 .document( idUsuarioRemetente )
                 .collection( Constantes.ULTIMAS_CONVERSAS )
+                .orderBy("data", Query.Direction.DESCENDING)
                 .addSnapshotListener { querySnapshot, erro ->
 
                     if ( erro != null ) {
