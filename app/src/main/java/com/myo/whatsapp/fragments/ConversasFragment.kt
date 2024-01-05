@@ -1,17 +1,22 @@
 package com.myo.whatsapp.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.toObject
 import com.myo.whatsapp.R
+import com.myo.whatsapp.activities.MensagensActivity
 import com.myo.whatsapp.adapters.ContatosAdapter
+import com.myo.whatsapp.adapters.ConversasAdapter
 import com.myo.whatsapp.databinding.FragmentContatosBinding
 import com.myo.whatsapp.databinding.FragmentConversasBinding
 import com.myo.whatsapp.model.Conversa
@@ -23,7 +28,7 @@ class ConversasFragment : Fragment() {
 
     private lateinit var binding: FragmentConversasBinding
     private lateinit var eventoSnapshot: ListenerRegistration
-    private lateinit var contatosAdapter: ContatosAdapter
+    private lateinit var conversasAdapter: ConversasAdapter
 
     private val firebaseAuth by lazy {
         FirebaseAuth.getInstance()
@@ -39,6 +44,28 @@ class ConversasFragment : Fragment() {
     ): View?
      {
          binding = FragmentConversasBinding.inflate( inflater, container, false )
+
+         conversasAdapter = ConversasAdapter { conversa ->
+
+             val intent = Intent( context, MensagensActivity::class.java )
+             val usuario = Usuario(
+                 id = conversa.idUsuarioRemetente,
+                 nome = conversa.nome,
+                 foto = conversa.foto
+             )
+
+             intent.putExtra( "dadosDestinatario", usuario )
+             //intent.putExtra( "origem", Constantes.ORIGEM_CONVERSA )
+             startActivity( intent )
+
+         }
+         binding.rvConversasFragment.adapter = conversasAdapter
+         binding.rvConversasFragment.layoutManager = LinearLayoutManager( context )
+         binding.rvConversasFragment.addItemDecoration(
+             DividerItemDecoration(
+                 context, LinearLayoutManager.VERTICAL
+             )
+         )
 
          return binding.root
     }
@@ -91,16 +118,10 @@ class ConversasFragment : Fragment() {
 
                     if ( listaConversas.isNotEmpty() ) {
 
-                        // Atualizar o adapter
+                        conversasAdapter.adicionarLista( listaConversas )
 
                     }
-
                 }
-
         }
-
-
-
     }
-
 }

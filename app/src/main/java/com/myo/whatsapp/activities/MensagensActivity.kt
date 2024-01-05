@@ -235,18 +235,10 @@ class MensagensActivity : AppCompatActivity() {
 
         if ( extras != null ) {
 
-            val origem = extras.getString( "origem" )
-
-            if ( origem == Constantes.ORIGEM_CONTATO ) {
-
-                dadosDestinatario = extras.getParcelable(
-                        "dadosDestinatario",
-                        Usuario::class.java
-                    )
-
-            }else if ( origem == Constantes.ORIGEM_CONVERSA ) {
-                        // REcuperar os dados da conversa
-            }
+            dadosDestinatario = extras.getParcelable(
+                "dadosDestinatario",
+                Usuario::class.java
+            )
         }
     }
 
